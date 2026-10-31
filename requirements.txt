@@ -1,0 +1,19 @@
+# Core runtime
+torch>=2.0
+numpy
+pandas
+scipy
+networkx
+einops
+matplotlib
+seaborn
+setproctitle
+
+# Data preparation (optional; only needed to download / convert data)
+tqdm
+yfinance
+akshare
+kagglehub
+
+# Optional: regenerate Qlib Alpha158 features
+# pyqlib
