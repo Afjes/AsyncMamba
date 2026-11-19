@@ -1,4 +1,27 @@
-"""临时脚本：验证 main.py v2 架构改动（删除 _old + 图先验 + 存活门控 + 残差注入）。"""
+"""
+Mechanism validation for AsyncMamba.
+
+This script verifies that the core architectural mechanisms work as designed,
+using synthetic data only (no dataset required). It is NOT a performance
+benchmark — see results/preliminary_results.md for real-data results.
+
+Checks:
+  [A] Old classes removed (code hygiene)
+  [B] Graph constructor is learnable (grad_norm > 0, adj row-sum ≈ 1, no all-zero rows)
+  [C] Lag distribution + survival gate behave correctly (incl. manual hazard intervention)
+  [D] Residual injection is active (zeroing t>=1 inputs changes predictions)
+  [E] Lag-weight export + 14 ablation variants can all forward-pass
+  [F] Lag identifiability (synthetic task with known lag=3 recovers p ≈ [0,0,1])
+  [G] Parameters actually update under real optimizer (10 Adam steps)
+  [H] State-conditioned modulation produces different lag distributions for different states
+
+Usage:
+    python validate_mechanisms.py
+
+Expected output: all checks pass, with grad_norms > 0 and max|Δpred| > 0.
+Runtime: ~1-2 minutes on CPU.
+"""
+
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -42,7 +65,8 @@ print("[B] 图是否可学（关键修复）")
 sd = dict(model.named_parameters())
 gn = sum(sd[k].grad.norm().item() ** 2 for k in sd
          if "graph_constructor" in k) ** 0.5
-print("   graph_constructor grad_norm =", gn, "（修复前恒为 0）")
+print("   graph_constructor grad_norm =", gn,
+      "(must be > 0: confirms the graph is learnable, not a fixed mask)")
 print("   邻接行和 =", adj.sum(-1).mean().item(),
       "| 非零边/行 =", (adj > 0).sum(-1).float().mean().item(),
       "| 全零行 =", (adj.sum(-1) == 0).float().mean().item())

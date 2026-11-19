@@ -31,7 +31,7 @@ The pipeline runs end-to-end **with or without a dataset**. When the expected da
 
 ```bash
 cd AsyncMamba
-python -m venv .venv && source .venv/bin/activate   # optional, recommended
+python -m venv .venv && source .venv/bin/activate   # optional, conda
 pip install -r requirements.txt
 ```
 
@@ -63,7 +63,7 @@ python main.py --mode train --device cpu
 ### 3.4 Smoke / mechanism checks (no dataset required)
 
 ```bash
-python _validate_v2.py     # graph gradients, lag identifiability, residual injection, 14 ablation forward passes
+python validate_mechanisms.py     # graph gradients, lag identifiability, residual injection, 14 ablation forward passes
 python _smoke_train.py     # two synthetic training steps
 ```
 
